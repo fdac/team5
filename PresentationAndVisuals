@@ -1,0 +1,113 @@
+## This is an R markdown file, used to create our presentation and visuals
+
+---
+title: "Project 1"
+author: "Mohammad AhmadzadehRaji, Camille Crumpton, Bryan White"
+date: "Wednesday, September 24, 2014"
+output: ioslides_presentation
+---
+
+## Developer's Paradise
+
+###Business Plan
+- Establish a more **Collaborative** code developing environment
+- Pull more long term contributors
+- Become a pseudo social network for coders based on shared ideas and techniques
+
+## Developer's Paradise
+
+###Initial Goal: Understand Existing Users
+- Number of users
+- Language of users (coding and text)
+- Number of projects 
+- How these change over time
+
+## Number of Existing Users 
+- Number of users is **189900**
+- Number of Public Repositories is **416546**
+
+###Caveat: Only Public Repo Creators
+- We do not know, and cannot directly know the number of users with only private repositories or no repositories. However, those with no repositories would not be considered customers, since they are not using our service.
+- On June 4, 2013 they added their millionth user (blog.bibucket.org)
+- When aquired in July of 2010, there were >60,000 users
+- Possible future analysis would estimate number of total users based on proportions of public users in known years.
+
+##Activity of Projects
+```{r,echo=FALSE}
+library(ggplot2)
+# add barplot,
+activity<-c(1089,10887,33435,67414,121769,162958,183398)
+created<-c(1098,9789,22548,33979,64354,136138,148640)
+year<-as.factor(c(2008,2009,2010,2011,2012,2013,2014))
+combined<-data.frame(activity,created,year)
+ggplot(data=combined, aes(x=year, y=activity, fill=year)) +
+    geom_bar(colour="black", stat="identity") +
+    guides(fill=FALSE) + 
+    scale_fill_brewer(palette="RdYlBu")+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+##Creation of Projects
+```{r,echo=FALSE}
+ggplot(data=combined, aes(x=year, y=created, fill=year)) +
+    geom_bar(colour="black", stat="identity") +
+    guides(fill=FALSE) + 
+    scale_fill_brewer(palette="RdYlBu") + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+##Activity on Old vs Creation of New
+In the first few years of BitBucket, the active accounts are equal to the cumulative sum of created accounts.  In more recent years, this pattern does not hold as accounts become unused or closed.
+
+We fit a line to the first few years to show how the growth in new projects has become increasingly exponential and how projects are no longer worked on.  From this we could possibly estimate lifecycle of projects.
+
+##Activity on Old vs Creation of New
+```{r, echo=FALSE, message=FALSE}
+combined$created_sum<-cumsum(combined$created)
+#coef(lm(combined$activity[1:4] ~ combined$created_sum[1:4]))
+ggplot(combined, aes(x=activity, y=created_sum)) +
+    geom_point(shape=1, size = 4) +    # Use hollow circles
+    geom_smooth(se = FALSE)   +
+    geom_abline(intercept = -4.897809, slope =  1.000094 ,colour = "red", size = .5)
+
+```
+
+## Number of Users by spoken Language
+- To characterize the existing customers we mined the description of repositories for spoken language
+- Used only Repositories with at least 10 words in the description to accurately estimate the language using python
+- Programming language was considerd, but computational time for going into each repository and characterizing each was considered out of scope.
+- This information should support customer segmentation analysis and could possibly be used as a proxy for country of origin.
+
+## Users by Spoken Language
+```{r,echo=FALSE}
+
+language<-c("Unknown", "Danish", "Dutch", "English", "Finnish", "French", "German", "Hungarian","Italian", "Norwegian", "Portuguese", "Russian", "Spanish", "Swedish", "Turkish")
+
+Freq<-c(347992,477,204,62277,76,706,407,113,239,35,1605,591,1374,424,26)
+
+lang_freq<-data.frame(language,Freq)
+
+ggplot(data=lang_freq, aes(x=language, y=Freq, fill=language)) +
+    geom_bar(colour="black", stat="identity") +
+    guides(fill=FALSE) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+## Users by Spoken Language (Excluding Unknowns)
+```{r,echo=FALSE}
+lang_freq2<-lang_freq[which(lang_freq$language!="Unknown"),]
+ggplot(data=lang_freq2, aes(x=language, y=Freq, fill=language)) +
+    geom_bar(colour="black", stat="identity") +
+    guides(fill=FALSE) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+## Users by Spoken Language (Excluding Unknowns and English)
+```{r,echo=FALSE}
+lang_freq3<-lang_freq2[which(lang_freq2$language!="English"),]
+ggplot(data=lang_freq3, aes(x=language, y=Freq, fill=language)) +
+    geom_bar(colour="black", stat="identity") +
+    guides(fill=FALSE) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
